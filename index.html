@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conceal Link Parameters</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            color: rgb(0, 255, 0);
+            background-color: black;
+            margin: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+        <div>Conceal Link Parameters</div>
+        <br />
+    </div>
+    <script>
+        function ConcealLinkProps(ln) {
+            try {
+                let args = ln.split("?");
+                let props = args[1].split("&");
+                let finalProps = "";
+                for (let prop of props) {
+                    var sep = prop.split("=");
+                    if (finalProps.length > 0) {
+                        finalProps += "&" + sep[0] + "=" + EncodeAlphanumerics(sep[1]);
+                    } else {
+                        finalProps += sep[0] + "=" + EncodeAlphanumerics(sep[1]);
+                    }
+                }
+                return args[0] + "?" + finalProps;
+            } catch {
+                return "Invalid value";
+            }
+        }
+
+        function EncodeAlphanumerics(i) {
+            var k = "";
+            for (var v = 0; v < i.length; v++) {
+                k += ("%" + i.charCodeAt(v).toString(16));
+            }
+            return k;
+        }
+
+        var currentElement;
+        var input = "";
+        const container = document.getElementById("container");
+        var control = false;
+
+        function GUIAddEntry() {
+            var el1 = document.createElement("div");
+            el1.innerHTML = "Input link > " + input;
+            currentElement = el1;
+            container.appendChild(el1);
+        }
+
+        document.addEventListener("keydown", function (key) {
+            switch (key.key) {
+                case "Enter":
+                    GUIFinalize();
+                    input = "";
+                    break;
+                case "Backspace":
+                    input = input.slice(0, -1);
+                    currentElement.innerHTML = "Input link > " + input;
+                    break;
+                case "Control":
+                    control = true;
+                    break;
+                case "v":
+                    if (control) {
+                        return;
+                    } else {
+                        input += "v";
+                        currentElement.innerHTML = "Input link > " + input;
+                    }
+                    break;
+                default:
+                    if (key.key.length == 1) {
+                        input += key.key;
+                        currentElement.innerHTML = "Input link > " + input;
+                    }
+                    break;
+            }
+        })
+
+        document.addEventListener("keyup", function (key) {
+            switch (key.key) {
+                case "Control":
+                    control = false;
+                    break;
+            }
+        })
+
+
+        document.addEventListener("paste", function(ev) {
+            input += ev.clipboardData.getData("text");
+            currentElement.innerHTML = "Input link > " + input;
+        })
+
+        function GUIFinalize() {
+            var el1 = document.createElement("div");
+            el1.innerHTML = "Concealed > " + ConcealLinkProps(input);
+            currentElement = null;
+            var br = document.createElement("br");
+            container.appendChild(el1);
+            container.appendChild(br);
+            setTimeout(() => {
+                GUIAddEntry();
+            }, 1000);
+        }
+
+        setTimeout(() => {
+            GUIAddEntry();
+        }, 1000);
+    </script>
+</body>
+
+</html>
