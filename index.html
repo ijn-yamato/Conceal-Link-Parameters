@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -16,22 +15,23 @@
             background-color: black;
             position: absolute;
         }
+
         html {
             background-color: black;
             margin: 5px;
         }
     </style>
 </head>
-
 <body>
+    <textarea id="focusTrick" style="display: none; width: 100%; height: 100%;"></textarea>
     <div id="container">
-        <div>Conceal Link Parameters</div>
+        <div>Conceal Link Parameters : Version 1.1</div>
         <br />
     </div>
     <script>
         function ConcealLinkProps(ln) {
             try {
-                let args = ln.split("?");
+                let args = decodeURI(ln).split("?");
                 let props = args[1].split("&");
                 let finalProps = "";
                 for (let prop of props) {
@@ -63,9 +63,13 @@
 
         function GUIAddEntry() {
             var el1 = document.createElement("div");
-            el1.innerHTML = "Input link > " + input;
             currentElement = el1;
             container.appendChild(el1);
+            UpdateInput();
+        }
+
+        function UpdateInput() {
+            currentElement.innerHTML = "Input link > " + input + ((Date.now() % 1201) > 600 ? "_" : "");
         }
 
         document.addEventListener("keydown", function (key) {
@@ -76,7 +80,7 @@
                     break;
                 case "Backspace":
                     input = input.slice(0, -1);
-                    currentElement.innerHTML = "Input link > " + input;
+                    UpdateInput();
                     break;
                 case "Control":
                     control = true;
@@ -86,13 +90,13 @@
                         return;
                     } else {
                         input += "v";
-                        currentElement.innerHTML = "Input link > " + input;
+                        UpdateInput();
                     }
                     break;
                 default:
                     if (key.key.length == 1) {
                         input += key.key;
-                        currentElement.innerHTML = "Input link > " + input;
+                        UpdateInput();
                     }
                     break;
             }
@@ -106,10 +110,14 @@
             }
         })
 
+        const kbdTrick = document.querySelector("#focusTrick");
+        document.addEventListener("click", () => {
+            kbdTrick.focus();
+        });
 
-        document.addEventListener("paste", function(ev) {
+        document.addEventListener("paste", function (ev) {
             input += ev.clipboardData.getData("text");
-            currentElement.innerHTML = "Input link > " + input;
+            UpdateInput();
         })
 
         function GUIFinalize() {
@@ -127,7 +135,9 @@
         setTimeout(() => {
             GUIAddEntry();
         }, 1000);
+        setInterval(() => {
+            UpdateInput();
+        }, 600)
     </script>
 </body>
-
 </html>
